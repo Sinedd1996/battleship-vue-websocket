@@ -14,4 +14,4 @@ node.js - например 20.15.0
 
 # Запуск в Docker
 в корне проекта в терминале вводим "docker-compose up"
-открываем http://localhost/
+открываем url http://localhost/
