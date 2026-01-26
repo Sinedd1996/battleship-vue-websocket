@@ -3,7 +3,7 @@ ARG NODE_VERSION=20.15.0
 FROM node:${NODE_VERSION}-alpine AS build
 WORKDIR /app
 # Копируем package.json и package-lock.json для установки зависимостей
-COPY package*.json ./
+COPY package*.json yarn.lock ./
 # Устанавливаем зависимости
 RUN yarn install
 # Копируем все остальные файлы приложения
