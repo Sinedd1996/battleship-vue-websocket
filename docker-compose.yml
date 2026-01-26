@@ -1,0 +1,27 @@
+version: '3'
+services:
+  vue_app:
+    build:
+      context: ./vue-app
+      dockerfile: Dockerfile
+    restart: always
+    container_name: my-project-vua-app
+    ports:
+      - 80:80
+    networks:
+      - networkName
+
+  server_app:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    restart: always
+    container_name: my-project-server-node
+    ports:
+      - 4000:4000
+    networks:
+      - networkName
+
+networks:
+  networkName:
+    driver: bridge
