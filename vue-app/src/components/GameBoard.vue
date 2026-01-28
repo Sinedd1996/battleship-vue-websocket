@@ -52,8 +52,7 @@
 </template>
 
 <script setup>
-import { computed, watch, onMounted } from "vue";
-import { ref } from "vue";
+import { computed, watch, onMounted, ref } from "vue";
 import socket from "../socket";
 import { addCellsDisabled } from "../utils/helper";
 
