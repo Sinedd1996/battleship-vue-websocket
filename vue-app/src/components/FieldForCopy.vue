@@ -3,7 +3,7 @@
   <p>{{ pageUrl }}</p>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, onMounted } from "vue";
 
 const pageUrl = ref("");

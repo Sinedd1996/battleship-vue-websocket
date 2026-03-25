@@ -1,8 +1,8 @@
-import { createRouter, createWebHistory } from "vue-router";
+import { createRouter, createWebHistory, type RouteRecordRaw } from "vue-router";
 import Game from "./components/Game.vue";
 import NotFound from "./components/NotFound.vue";
 
-const routes = [
+const routes: Array<RouteRecordRaw> = [
   {
     path: "/",
     name: "home",
@@ -15,7 +15,7 @@ const routes = [
   },
 ];
 
-const router = new createRouter({
+const router = createRouter({
   history: createWebHistory(),
   routes,
 });

@@ -10,24 +10,25 @@
   />
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { watch } from "vue";
 import GameCreateShipPositions from "./GameCreateShipPositions.vue";
 import GameBoard from "./GameBoard.vue";
 import socket from "../socket";
+import type { ListOfShip } from "../types/game";
 
-const { sessionId, roomId, gameStarted } = defineProps([
-  "sessionId",
-  "roomId",
-  "gameStarted",
-]);
+const { sessionId, roomId, gameStarted } = defineProps<{
+  sessionId: string,
+  roomId: string,
+  gameStarted: boolean
+}>();
 
-const handleAddShipsToServer = (listShip) => {
-  console.log("Отправляем на сервер позиции кораблей", listShip);
+const handleAddShipsToServer = (listOfShip: ListOfShip) => {
+  console.log("Отправляем на сервер позиции кораблей", listOfShip);
   socket.emit("setGameScoresShipsPosition", {
     roomId,
     playerId: sessionId,
-    listShip,
+    listOfShip,
   });
 };
 

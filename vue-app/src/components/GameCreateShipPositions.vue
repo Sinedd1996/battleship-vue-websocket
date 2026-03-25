@@ -19,7 +19,7 @@
         <div
           v-for="(item, index) of SHIPS"
           :key="item.id"
-          :id="item.id"
+          :id="String(item.id)"
           :class="`ship ship-${item.size}`"
           draggable="true"
           @dragstart="(event) => dragstartHandler(event, item.size)"
@@ -54,43 +54,45 @@
   </template>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref } from "vue";
 import { SHIPS } from "../consts";
 import { addCellsDisabled } from "../utils/helper";
+import type { ListOfShip, Cell } from "../types/game";
 
 const emit = defineEmits(["readyToPlay"]);
 
 const playerBoard = ref(Array.from({ length: 100 }, () => 0));
 const currentShipSize = ref(0);
 const countAddedShips = ref(0);
-const playerShips = [];
+const playerShips: ListOfShip[] = [];
 const isVisibleWaiting = ref(false);
 const isPositionVertical = ref(false);
 
-function dragstartHandler(event, shipSize) {
-  event.dataTransfer.setData("text", event.target.id);
+function dragstartHandler(event: DragEvent, shipSize: number) {
+  const target = event.target as HTMLDivElement;
+  event.dataTransfer?.setData("text", target.id);
   currentShipSize.value = shipSize;
-  // console.log(event, " ---- dragstartHandler");
 }
 
-function dragEndHandler(event) {
-  event.dataTransfer.setData("text", event.target.id);
-  // console.log(event, " ---- dragEndHandler");
+function dragEndHandler(event: DragEvent) {
+  const target = event.target as HTMLDivElement;
+  event.dataTransfer?.setData("text", target.id);
 }
 
-function dragoverHandler(event) {
+function dragoverHandler(event: DragEvent) {
   event.preventDefault();
 
-  console.log('event target', event?.target)
+  console.log("event target", event?.target);
 }
 
-function dropHandler(event) {
+function dropHandler(event: DragEvent) {
+  const target = event.target as HTMLDivElement;
   event.preventDefault();
 
-  const dataId = event.dataTransfer.getData("text");
-  const elem = document.getElementById(dataId);
-  const index = Number(event.target.dataset.index);
+  const dataId = event.dataTransfer?.getData("text");
+  const elem = document.getElementById(dataId || '');
+  const index = Number(target.dataset.index);
 
   if (playerBoard.value[index] === 1 || playerBoard.value[index] === 9) {
     console.log("клетка заблокирована");
@@ -99,7 +101,7 @@ function dropHandler(event) {
   addShipOnBoard(index, currentShipSize.value, elem, Number(dataId));
 }
 
-const addShipOnBoard = (index, shipSize, elemById, shipId) => {
+const addShipOnBoard = (index: number, shipSize: number, elemById: HTMLElement | null, shipId: Cell) => {
   const cellIndex = index % 10;
   const rowIndex = index < 10 ? 0 : Math.floor(index / 10);
   const listIndexNewCells = [index];
@@ -128,7 +130,7 @@ const addShipOnBoard = (index, shipSize, elemById, shipId) => {
   // проверка впереди идущих клеток на свободность
   for (let i = 0; i < listIndexNewCells.length; i++) {
     // если хотя бы одна из клеток занята прерываем добавление корабля
-    if (playerBoard.value[listIndexNewCells[i]] !== 0) {
+    if (playerBoard.value[listIndexNewCells[i] || 0] !== 0) {
       console.log("Ошибка, не правильное расположение корабля");
       return;
     }
@@ -148,14 +150,18 @@ const addShipOnBoard = (index, shipSize, elemById, shipId) => {
   currentShipSize.value = 0;
 };
 
-const changePlayerBoard = (listIndex) => {
+const changePlayerBoard = (listIndex: Cell[]) => {
   for (let i = 0; i < listIndex.length; i++) {
-    playerBoard.value[listIndex[i]] = 1;
+    const cellIndex = listIndex[i];
+
+    if (cellIndex !== undefined) {
+      playerBoard.value[cellIndex] = 1;
+    }
   }
 };
 
-const getNumberOfShips = (size, index) => {
-  return [0, 4, 7, 9, 10][size] - index;
+const getNumberOfShips = (size: number, index: number) => {
+  return Number([0, 4, 7, 9, 10][size]) - index;
 };
 
 const handleReadyToPlay = () => {
