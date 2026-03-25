@@ -1,5 +1,13 @@
+import type { Cell } from "../types/game";
+
+type CellDisabled = {
+  index: Cell
+  additionalCheck?: boolean
+  boardList: Cell[]
+}
+
 // добавление задисабленных полей вокруг корабля
-export const addCellsDisabled = (listCells = [], boardList = []) => {
+export const addCellsDisabled = (listCells: Cell[] = [], boardList: Cell[] = []) => {
   listCells.forEach((elem) => {
     const cellIndex = elem % 10;
 
@@ -29,7 +37,7 @@ export const addCellsDisabled = (listCells = [], boardList = []) => {
   });
 };
 
-export const setCellDisabled = ({ index, additionalCheck = true, boardList = [] }) => {
+export const setCellDisabled = ({ index, additionalCheck = true, boardList = [] } : CellDisabled) => {
   // если клетка пустая, и если ей можно поменять состояние, тогда меняем на задисабленный код
   if (boardList[index] === 0 && additionalCheck) {
     boardList[index] = 9;

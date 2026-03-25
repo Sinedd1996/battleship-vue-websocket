@@ -6,7 +6,7 @@ const server = http.createServer(app);
 
 const io = socketIo(server, {
   cors: {
-    origin: ["http://localhost", 'http://localhost:4173'],
+    origin: ["http://localhost", 'http://localhost:5173'],
     methods: ["GET", "POST"],
   },
 });
@@ -34,14 +34,14 @@ io.on("connection", (socket) => {
     console.log(`Игра создана, комната: ${roomId}`);
   });
 
-  socket.on("setGameScoresShipsPosition", ({ roomId, playerId, listShip }) => {
-    if (roomId && playerId && listShip?.length) {
+  socket.on("setGameScoresShipsPosition", ({ roomId, playerId, listOfShip }) => {
+    if (roomId && playerId && listOfShip?.length) {
       const room = rooms.get(roomId);
 
       room.gameScores[playerId] = {
         shots: [],
         damages: [],
-        ships: listShip,
+        ships: listOfShip,
         miss: [],
         opponentMiss: [],
       };

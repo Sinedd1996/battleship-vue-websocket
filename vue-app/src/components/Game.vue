@@ -37,7 +37,7 @@
   </template>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { useRouter, useRoute } from "vue-router";
 import { ref, onMounted, onBeforeMount } from "vue";
 import socket from "../socket";
@@ -49,7 +49,7 @@ const stepGame = ref(0);
 const router = useRouter();
 const route = useRoute();
 const isLoading = ref(false);
-const pageQueryRoomId = ref(route.query.room || "");
+const pageQueryRoomId = ref(String(route.query.room || ''));
 const isOpponentLeft = ref(false);
 const isRoomAccessError = ref(false);
 const isRoomNotFound = ref(false);
@@ -57,17 +57,17 @@ const isRoomNotFound = ref(false);
 const sessionId = ref(randomUUID());
 const isGameStarted = ref(false);
 
-const createGame = (playerId) => {
+const createGame = (playerId: string) => {
   socket.emit("createGame", playerId);
 };
 
-const pushQueryRoomId = (id) => {
+const pushQueryRoomId = (id: string) => {
   router.replace({ query: { room: id } });
   pageQueryRoomId.value = id;
 };
 
 const resetGameState = () => {
-  router.replace();
+  router.replace({});
   stepGame.value = 0;
   isOpponentLeft.value = false;
   isRoomAccessError.value = false;
@@ -81,7 +81,7 @@ const goToCreateGame = () => {
 
 onBeforeMount(() => {
   if (window.localStorage.getItem("sessionId")) {
-    sessionId.value = window.localStorage.getItem("sessionId");
+    sessionId.value = window.localStorage.getItem("sessionId") || "";
   } else {
     window.localStorage.setItem("sessionId", sessionId.value);
   }
@@ -91,7 +91,7 @@ onBeforeMount(() => {
     isLoading.value = true;
   }
 
-  console.log('is before mounted');
+  console.log("is before mounted");
 });
 
 onMounted(() => {
@@ -109,12 +109,11 @@ onMounted(() => {
     });
   }
 
-  socket.on("playerJoined", ({ players, gameStarted, currentPlayer }, room) => {
+  socket.on("playerJoined", ({ players, gameStarted }) => {
     if (players && players?.length && players.includes(sessionId.value)) {
       stepGame.value = players.length;
       isLoading.value = false;
       isGameStarted.value = gameStarted;
-      // currentPlayerId.value = currentPlayer;
     }
     console.log("Пользователь подключился к комнате ");
   });
@@ -134,7 +133,7 @@ onMounted(() => {
   });
 
   // когда игра началась
-  socket.on("gameStart", (currentPlayer) => {
+  socket.on("gameStart", () => {
     isGameStarted.value = true;
   });
 });

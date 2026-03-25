@@ -51,12 +51,15 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { computed, watch, onMounted, ref } from "vue";
 import socket from "../socket";
 import { addCellsDisabled } from "../utils/helper";
 
-const { sessionId, roomId } = defineProps(["sessionId", "roomId"]);
+const { sessionId, roomId } = defineProps<{
+  sessionId: string,
+  roomId: string
+}>();
 
 const playerBoard = ref(Array.from({ length: 100 }, () => 0));
 const opponentBoard = ref(Array.from({ length: 100 }, () => 0));
@@ -91,7 +94,7 @@ const changePlayerBoard = (listIndex) => {
   }
 };
 
-const handleClickBoard = (event) => {
+const handleClickBoard = (event: MouseEvent) => {
   // если есть победитель не реагируем на клик
   if (gameWinnerId.value) {
     return;
@@ -100,7 +103,9 @@ const handleClickBoard = (event) => {
   if (currentPlayer.value !== sessionId) {
     return alert("Сейчас ход соперника!");
   }
-  const cellId = Number(event.target.dataset?.index);
+
+  const target = event.target as HTMLDivElement
+  const cellId = Number(target.dataset?.index);
 
   if ((cellId || cellId === 0) && indexLastClickCell.value !== cellId) {
     socket.emit("setGameScoresPlayerShot", {
@@ -112,6 +117,8 @@ const handleClickBoard = (event) => {
     indexLastClickCell.value = cellId;
   }
 };
+
+
 
 // при загрузке актуализируем состояние подбитых кораблей
 const setBoardCellsOnLoad = (
