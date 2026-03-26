@@ -1,4 +1,4 @@
-# vue-websocket-battleship
+# battleship game
 Игра морской бой
 
 # Локальный запуск проекта
