@@ -55,10 +55,11 @@
 import { computed, watch, onMounted, ref } from "vue";
 import socket from "../socket";
 import { addCellsDisabled } from "../utils/helper";
+import type { Cell, DamageInfo, GameScoresDamages, GameScoresMiss, GameScoresPlayer, SessionId, Shots } from "../types/game";
 
 const { sessionId, roomId } = defineProps<{
-  sessionId: string,
-  roomId: string
+  sessionId: SessionId,
+  roomId: SessionId
 }>();
 
 const playerBoard = ref(Array.from({ length: 100 }, () => 0));
@@ -67,13 +68,13 @@ const opponentBoard = ref(Array.from({ length: 100 }, () => 0));
 const isMyCurrentPlayerId = computed(() => currentPlayer.value === sessionId);
 const indexLastClickCell = ref(-1);
 
-const currentPlayer = ref();
-const playerShips = ref([]);
+const currentPlayer = ref<SessionId>();
+const playerShips = ref<Shots[]>([]);
 
 const myScores = ref(0);
 const oppenentScores = ref(0);
 
-const gameWinnerId = ref(undefined);
+const gameWinnerId = ref<SessionId>();
 
 watch(
   () => playerShips.value,
@@ -86,10 +87,11 @@ watch(
   { immediate: true }
 );
 
-const changePlayerBoard = (listIndex) => {
+const changePlayerBoard = (listIndex: Cell[]) => {
   for (let i = 0; i < listIndex.length; i++) {
-    if (playerBoard.value[listIndex[i]] === 0) {
-      playerBoard.value[listIndex[i]] = 1;
+    const cellIndex = listIndex[i];
+    if (cellIndex !== undefined && playerBoard.value[cellIndex] === 0) {
+      playerBoard.value[cellIndex] = 1;
     }
   }
 };
@@ -118,12 +120,10 @@ const handleClickBoard = (event: MouseEvent) => {
   }
 };
 
-
-
 // при загрузке актуализируем состояние подбитых кораблей
 const setBoardCellsOnLoad = (
-  currentCells = [],
-  boardList = [],
+  currentCells: Shots[] = [],
+  boardList: Cell[] = [],
   isMyBoard = false
 ) => {
   currentCells?.forEach(({ cells, status }) => {
@@ -146,7 +146,7 @@ const setBoardCellsOnUpdateDamageInfo = ({
   status,
   boardList,
   isMyBoard = false,
-}) => {
+}: DamageInfo) => {
   cells.forEach((index) => {
     boardList[index] = status === "kill" ? 3 : 2;
   });
@@ -162,7 +162,7 @@ const setBoardCellsOnUpdateDamageInfo = ({
 onMounted(() => {
   socket.on(
     "gameScoresPlayerUpdate",
-    ({ gameScoresPlayer, currentPlayerId, winnerId }) => {
+    ({ gameScoresPlayer, currentPlayerId, winnerId }: GameScoresPlayer) => {
       currentPlayer.value = currentPlayerId;
       // при монтировании записываем позицию кораблей
       if (!playerShips.value.length) {
@@ -186,7 +186,7 @@ onMounted(() => {
     }
   );
 
-  socket.on("gameScoresMissUpdate", ({ cellId, currentPlayerId }) => {
+  socket.on("gameScoresMissUpdate", ({ cellId, currentPlayerId }: GameScoresMiss) => {
     if (typeof cellId === "number" && currentPlayerId) {
       if (currentPlayerId !== sessionId) {
         opponentBoard.value[cellId] = 9;
@@ -203,7 +203,7 @@ onMounted(() => {
 
   socket.on(
     "gameScoresDamagesUpdate",
-    ({ damageInfo, cellId, currentPlayerId }) => {
+    ({ damageInfo, cellId, currentPlayerId }: GameScoresDamages) => {
       const { cells, status } = damageInfo;
 
       if (typeof cellId === "number" && currentPlayerId) {
@@ -223,7 +223,7 @@ onMounted(() => {
     }
   );
 
-  socket.on("gameOver", (winnerId) => {
+  socket.on("gameOver", (winnerId: string) => {
     gameWinnerId.value = winnerId;
   });
 });
