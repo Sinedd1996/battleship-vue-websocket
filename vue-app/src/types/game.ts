@@ -47,3 +47,8 @@ export type GameScoresDamages = {
   cellId: Cell
   currentPlayerId: SessionId
 }
+
+export type PlayerJoined = {
+  gameStarted: boolean
+  players: SessionId[]
+}

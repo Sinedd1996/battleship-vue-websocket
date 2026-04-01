@@ -44,6 +44,7 @@ import socket from "../socket";
 import GameRoom from "./GameRoom.vue";
 import FieldForCopy from "./FieldForCopy.vue";
 import { randomUUID } from "../utils/uuid";
+import type { PlayerJoined, RoomId } from "../types/game";
 
 const stepGame = ref(0);
 const router = useRouter();
@@ -95,7 +96,7 @@ onBeforeMount(() => {
 });
 
 onMounted(() => {
-  socket.on("gameCreated", (roomId) => {
+  socket.on("gameCreated", (roomId: RoomId) => {
     console.log("Игра создана, id комнаты - ", roomId);
     pushQueryRoomId(roomId);
     stepGame.value = 1;
@@ -109,7 +110,7 @@ onMounted(() => {
     });
   }
 
-  socket.on("playerJoined", ({ players, gameStarted }) => {
+  socket.on("playerJoined", ({ players, gameStarted }: PlayerJoined) => {
     if (players && players?.length && players.includes(sessionId.value)) {
       stepGame.value = players.length;
       isLoading.value = false;
